@@ -1,3 +1,4 @@
+import _ from 'lodash'; 
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import YTSearch from 'youtube-api-search';
@@ -13,22 +14,26 @@ class App extends Component {
             videos: [],
             selectedVideo: null 
         };
-
-        YTSearch({key: API_KEY, term: 'surfboards'}, (videos) => {
+        this.videoSearch('surfboards');
+}
+    videoSearch(term) {
+         YTSearch({key: API_KEY, term: term}, (videos) => {
             this.setState({ 
                 videos: videos,
                 selectedVideo: videos[0]
              });
         });
     }
-
     //app boots up, videos is an empty array & our selectedVideo is null.
     //we go into video detail, video detail isn't provided a video so it shows the spinner. At the same tiume, we kick off our request to go grab a list of videos.  
     //when that request is completed, we'll pass in the list of videos into this.state.videos & the first video in that list will be set to selectedVideo. 
     render() {
+        const videoSearch= _.debounce ((term) => {this.videoSearch(term)}, 300);
+
+        
         return (
             <div>
-                <SearchBar />
+                <SearchBar onSearchTermChange={videoSearch} />
                 <VideoDetail video={this.state.selectedVideo} />
                 <VideoList 
                 onVideoSelect={selectedVideo => this.setState({selectedVideo}) }
